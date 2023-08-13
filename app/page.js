@@ -9,7 +9,8 @@ const page = () => {
   const [desc, setDesc] = useState("");
   const [status, setStatus] = useState("due");
   const [task, setTask] = useState([]);
-  const [updateAdd, setUpdateAdd] = useState("Add");
+  // const [updateAdd, setUpdateAdd] = useState("Add");
+  const [ActiveTask , setActiveTask] = useState(null);
   
   // When task is created this functin is called to make a new task and add it in the task array(state).
   var submitHandler = (e)=>{
@@ -27,6 +28,8 @@ const page = () => {
       status,
       date: new Date().toLocaleDateString(),
     }
+
+    console.log(newTask);
     
     // const newTaskarr = [...task];
     // newTaskarr.push(newTask);
@@ -40,7 +43,6 @@ const page = () => {
     setDesc("");
     setStatus("due");
     setTitle("");
-    setUpdateAdd("Add");
 
     // console.log(newTask)
   }
@@ -56,10 +58,10 @@ const page = () => {
           <h5 className="card-title">{item.title}</h5>
 
           <p className="card-text">
-             {item.desc} hello
+             {item.desc}
 
           </p>
-          <button onClick={()=> updateTask(index)} className="me-2 btn btn-sm   btn-dark">
+          <button onClick={()=> updateHandler(index)} className="me-2 btn btn-sm   btn-dark">
               Update Task
           </button>
           <button onClick={()=>deleteTask(index)} className="btn btn-sm btn-dark">
@@ -84,16 +86,27 @@ const page = () => {
 
     }
 
-    let updateTask = (index)=>{
-      const {title, description, status} = tasks[index];
+    let updateHandler = (index)=>{
+      setActiveTask(index);
+      const {title, desc, status} = task[index];
 
       setTitle(title);
-      setDesc(description);
+      setDesc(desc);
       setStatus(status);
 
-      deleteTask(index);
-      setUpdateAdd("Update");
+    }
 
+    let updateTask = ( event)=>{
+      
+      event.preventDefault();
+      let index = ActiveTask;
+      let copyTask = [...task];
+      copyTask[index] = {...copyTask[index], title, desc, status};
+      setTask(copyTask);
+      setActiveTask(null);
+      setTitle("")
+      setDesc("")
+      setStatus("")
     }
 
   
@@ -117,19 +130,21 @@ const page = () => {
     <>
     <h3 className='text-center mt-3'>TO-DO App</h3>
     <div className="container p-5">
-      <h4>{updateAdd} Task</h4>
+      <h4>Add Task</h4>
       <form onSubmit={submitHandler} className=" d-flex-column align-items-center">
         <input type="text" className="form-control mb-3" placeholder='Title' name='title' value={title} onChange={(e)=> setTitle(e.target.value)} />
       
-        <input name="description" className="form-control mb-3" value={desc} placeholder='Description' onChange={(e)=>setDesc(e.target.value)}></input>
+        <input name="description" className="form-control mb-3"  placeholder='Description' value={desc} onChange={(e)=>setDesc(e.target.value)}></input>
       
-        <select name="status" className="form-select mb-3 dark" aria-label="Default select example" defaultValue={status} onChange={(e) => setStatus(e.target.value)}>
+        <select name="status" className="form-select mb-3 dark" aria-label="Default select example" value={status} onChange={(e) => setStatus(e.target.value)}>
           <option value="due">Due</option>
           <option value="pending">Pending</option>
           <option value="completed">Completed</option>
         </select>
       
-        <button className="btn btn-dark">{updateAdd} </button>
+        
+
+        {(ActiveTask === null ?<button className="btn btn-dark"  onClick={submitHandler}> Add Task </button>: <button className="btn btn-dark" onClick={updateTask}> Update</button> )}
 
       </form>
 
